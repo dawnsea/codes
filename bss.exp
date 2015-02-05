@@ -18,5 +18,10 @@ sleep 1
 send "su - 계정\r"
 expect -timeout 5 ":"
 send "암호\r"
-expect eof
+send "\n"
+interact {
+    -o
+    eof { exit }
+}
+#expect eof
 #interact
