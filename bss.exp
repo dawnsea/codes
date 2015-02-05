@@ -1,0 +1,22 @@
+#!/usr/bin/expect
+set target "[lindex $argv 0]"
+spawn ssh -p 포트 계정@호스트
+expect -timeout 3 "password"
+send "암호\n"
+expect -timeout 1 "Input Device"
+send "i\r"
+expect -timeout 1 "ip number"
+send "$target\r"
+expect -timeout 1 "Input Service"
+send "s\r"
+expect -timeout 4 "Login"
+send "계정\r"
+expect -timeout 5 "*assword"
+send "암호\r"
+expect -timeout 5 "프롬프트>$"
+sleep 1
+send "su - 계정\r"
+expect -timeout 5 ":"
+send "암호\r"
+expect eof
+#interact
