@@ -1,3 +1,8 @@
+
+// gcc -o apr_test apr_test.c -I/usr/local/apache2/include/ -I/usr/local/apache2/include -lapr-1 -L/usr/local/apache2/lib
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
