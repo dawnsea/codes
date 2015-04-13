@@ -13,7 +13,23 @@
 #include "apr_pools.h"
 #include "apr_errno.h"
 
+#include "apr_tables.h"
+
+
 #include "libmemcached/memcached.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int apr_open(void)
@@ -69,6 +85,7 @@ int main(int argc, char *argv[])
 	size_t vlen;
 	memcached_st *memc;
 	memcached_return rc;
+	apr_array_header_t *art;
 	
 	printf("hello world\n");
 	
@@ -105,7 +122,28 @@ int main(int argc, char *argv[])
 	t = apr_psprintf(p, "%s, %d\n", getv, 4885);
 	
 	printf("t = %s\n", t);
-		
+	
+	
+	
+
+	
+	
+// apr array test
+	art = apr_array_make(p, 10, 10);
+	
+	
+	
+	*(const char **)apr_array_push(art) = "123";
+	*(const char **)apr_array_push(art) = "456";
+	*(const char **)apr_array_push(art) = "789";
+	*(const char **)apr_array_push(art) = "abc";
+	
+	
+	
+	printf("%s, %s, %s, %s\n", *(const char **)apr_array_pop(art), *(const char **)apr_array_pop(art), *(const char **)apr_array_pop(art), *(const char **)apr_array_pop(art));
+	
+	
+	apr_array_clear(art);
 	
 	memcached_free(memc);
 	
@@ -115,4 +153,9 @@ int main(int argc, char *argv[])
 	
 	exit(0);
 }
+
+
+
+
+
 
