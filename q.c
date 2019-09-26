@@ -20,17 +20,16 @@ int add_q(int data, struct qm_t *m)
 	
 	n = malloc(sizeof(struct q_t));
 	
+	n->next = NULL;
+	n->data = data;	
+	
 	if (!m->qh) {
 		m->qh = n;
 		m->qt = n;
-		
-		n->next = NULL;
-		n->data = data;
-		
+
 	} else {
 	
 		m->qt->next = n;
-		n->data = data;
 		m->qt = n;
 	
 	}
@@ -76,15 +75,11 @@ int main(int argc, char *argv[])
 	add_q(55, &mq);
 	printf("%p, %p\n", mq.qh, mq.qt);
 	
-	get_q(&ret, &mq);
-	printf("%p, %p\n", mq.qh, mq.qt);
-	printf("%d\n", ret);
 	
 	get_q(&ret, &mq);
-	printf("%p, %p\n", mq.qh, mq.qt);
-	printf("%d\n", ret);
-	
-	
+	get_q(&ret, &mq);
+			
+
 	get_q(&ret, &mq);
 	printf("--%p, %p\n", mq.qh, mq.qt);
 	printf("%d\n", ret);
