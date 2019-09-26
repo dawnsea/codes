@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 struct q_t {
 
@@ -8,41 +7,49 @@ struct q_t {
 	struct q_t *next;
 };
 
-struct q_t *init_q(void)
+struct qm_t {
+
+	struct q_t 		*qh;
+	struct q_t 		*qt;
+};
+
+
+int add_q(int data, struct qm_t *m)
 {
-	struct q_t *qhead = malloc(sizeof(struct q_t));
+	struct q_t *n, *aq;
 	
-	return qhead;
+	n = malloc(sizeof(struct q_t));
+	
+	if (!m->qh) {
+		m->qh = n;
+		m->qt = n;
+		
+		n->next = NULL;
+		n->data = data;
+		
+	} else {
+	
+		m->qt->next = n;
+		n->data = data;
+		m->qt = n;
+	
+	}
 }
 
-int add_q(int data, struct q_t **qhead)
+int get_q(int *data, struct qm_t *m)
 {
-	struct q_t *qp;
+	struct q_t *dq;
 	
-	qp = *qhead;
-	
-	while(qp->next) {
-		qp = qp->next;
-	};
-	
-	qp->next = malloc(sizeof(struct q_t));
-	memset(qp->next, 0, sizeof(struct q_t));
-	
-	qp->next->data = data;
-}
-
-int get_q(int *data, struct q_t **qhead)
-{
-	struct q_t *del_q;
-	
-	if ((*qhead)->next) {
-	
-		*data = (*qhead)->next->data;
-	
-		del_q = *qhead;
-		*qhead = (*qhead)->next;
-	
-		free(del_q);
+	if (m->qh) {
+		*data = m->qh->data;
+		dq = m->qh;
+		m->qh = m->qh->next;
+		free(dq);
+		
+		if (m->qh == NULL) {
+			m->qt = NULL;
+		}
+			
 		return 1;
 	}
 	
@@ -50,65 +57,54 @@ int get_q(int *data, struct q_t **qhead)
 
 }
 
-int get_qlen(struct q_t **qhead)
-{
-	int len = 0;
-	
-	struct q_t *qp;
-	
-	qp = *qhead;
-	
-	while(qp->next) {
-		qp = qp->next;
-		len++;
-	}
-	
-	return len;
-}
-
-
 int main(int argc, char *argv[])
 {
-	struct q_t *qhead;
 	int k;
 	int ret;
-
-	qhead = init_q();
 	
+	struct qm_t mq;
+	
+	mq.qh = NULL;
+	mq.qt = NULL;
+
+	add_q(33, &mq);
+	
+	printf("%p, %p\n", mq.qh, mq.qt);
+	add_q(44, &mq);
+	printf("%p, %p\n", mq.qh, mq.qt);
+	
+	add_q(55, &mq);
+	printf("%p, %p\n", mq.qh, mq.qt);
+	
+	get_q(&ret, &mq);
+	printf("%p, %p\n", mq.qh, mq.qt);
+	printf("%d\n", ret);
+	
+	get_q(&ret, &mq);
+	printf("%p, %p\n", mq.qh, mq.qt);
+	printf("%d\n", ret);
+	
+	
+	get_q(&ret, &mq);
+	printf("--%p, %p\n", mq.qh, mq.qt);
+	printf("%d\n", ret);
+	
+	
+	
+	add_q(66, &mq);
+	
+	get_q(&ret, &mq);
+	printf("--%p, %p\n", mq.qh, mq.qt);
 		
-	add_q(33, &qhead);
-	printf("ql = %d\n", get_qlen(&qhead));
-	add_q(44, &qhead);
-	printf("ql = %d\n", get_qlen(&qhead));
-	
-	if (get_q(&ret, &qhead)) {
-		printf("--%d\n", ret);
-		printf("ql = %d\n", get_qlen(&qhead));
-	}
+	printf("%d\n", ret);
 
-	if (get_q(&ret, &qhead)) {
-		printf("--%d\n", ret);
-		printf("ql = %d\n", get_qlen(&qhead));
-	}
+	int yy = get_q(&ret, &mq);
+	printf("--%p, %p, %d\n", mq.qh, mq.qt, yy);
 	
-	if (get_q(&ret, &qhead)) {
-		printf("--%d\n", ret);
-		printf("ql = %d\n", get_qlen(&qhead));
-	}
-		
-	add_q(55, &qhead);
-	printf("ql = %d\n", get_qlen(&qhead));
-		
-	add_q(66, &qhead);
-	printf("ql = %d\n", get_qlen(&qhead));		
+//	printf("ql = %d\n", get_qlen(&mq));
 	
+	exit(0);
 
-	if (get_q(&ret, &qhead)) {
-		printf("--%d\n", ret);
-		printf("ql = %d\n", get_qlen(&qhead));
-	}
-
-	
 }
 
 	
