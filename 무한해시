@@ -2,7 +2,7 @@ package main
 
 import (
 	"hash/crc32"
-	"os"
+//	"os"
 	"fmt"
 //	"time"
 //	"math/rand"
@@ -101,11 +101,13 @@ func get_leaf(t *hm_item) (*hm_item) {
 	
 	for f, i := range (*t).next_item {
 		if i != nil {
-			if (*t).child_count == 1 {
+			if i.child_count == 0 {
 				ret.k = i.k
 				ret.v = i.v 
-				println("리프 찾음", i.k, i.v)
+				println("리프 찾음11", i.k, i.v)
 				(*t).next_item[f] = nil
+				println("리프 찾음22", i.k, i.v)
+				(*t).child_count--
 //				i = nil
 //				t = nil
 				
@@ -231,6 +233,7 @@ func main() {
 	add("111", "221", 0, &root_items)
 	add("1111", "222", 0, &root_items)
 	add("11211", "223", 0, &root_items)
+	add("1eee1211", "dddd", 0, &root_items)
 	
 	println("----1111----")
 	get("1111", 0, &root_items)
@@ -242,12 +245,12 @@ func main() {
 	
 	println("----33")
 	print_all(&root_items, 0)
-	del("11211", 0, &root_items)
+//	del("11211", 0, &root_items)
 	println("----44")
 	print_all(&root_items, 0)
 	
 	
-	os.Exit(0)
+//	os.Exit(0)
 	
 	
 	for i := 0; i < 100; i++ {
