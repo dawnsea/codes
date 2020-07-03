@@ -1,0 +1,300 @@
+package main
+
+import (
+	"hash/crc32"
+	"os"
+	"fmt"
+//	"time"
+//	"math/rand"
+)
+
+type hm_item struct {
+
+	next_item 	[3]*hm_item
+	child_count	int
+	hash_uniq	uint32
+	k 	string
+	v	string
+
+}
+
+var root_items hm_item
+
+var root_hq *crc32.Table
+
+func add(k string, v string, d int, tree *hm_item) {
+
+
+	if (*tree).hash_uniq == 0 {
+	
+//		s1 := rand.NewSource(time.Now().UnixNano())
+//		r1 := rand.New(s1)
+		(*tree).hash_uniq = uint32(d)
+	}
+
+	c 		:= (crc32.Checksum([]byte(k), root_hq) + (*tree).hash_uniq) % 3
+//	c_next 	:= crc32.Checksum([]byte(k + hash_d[d + 1]), root_hq) % 3
+
+	
+	println("1111나는 --- ", k, v, "깊이", d, "해시", c, "자식수", (*tree).child_count)
+	
+	
+	if (*tree).next_item[c] == nil {
+		
+		new_item := hm_item{}
+		new_item.k = k
+		new_item.v = v	
+		
+		(*tree).next_item[c] = &new_item
+		(*tree).child_count++
+		
+//		println("나는 --- ", k, v, "깊이", d, "해시", c, "자식수", (*tree).child_count)
+		
+		return
+		
+	} 
+	
+	// 업데이트 모드
+	if (*tree).next_item[c].k == k {
+		println("업데이터 모드")
+		(*tree).next_item[c].v = v
+		return
+	}
+	
+	d++
+	add(k, v, d, tree.next_item[c])
+
+	
+}
+
+
+func get(k string, d int, tree *hm_item) {
+
+
+
+	c := (crc32.Checksum([]byte(k), root_hq) + (*tree).hash_uniq) % 3
+	
+	if tree == nil {
+	
+		println("못찾음1")
+		return
+	}
+	
+	if (*tree).next_item[c] == nil {
+		println("못찾음2")
+		return	
+	
+	}
+
+	if (*tree).next_item[c].k == k {
+		println("찾음", (*tree).next_item[c].k, (*tree).next_item[c].v)
+		return 
+	}
+	
+	get(k, d + 1, (*tree).next_item[c])
+
+}
+
+func get_leaf(t *hm_item) (*hm_item) {
+
+	var ret hm_item
+	
+	for f, i := range (*t).next_item {
+		if i != nil {
+			if (*t).child_count == 1 {
+				ret.k = i.k
+				ret.v = i.v 
+				println("리프 찾음", i.k, i.v)
+				(*t).next_item[f] = nil
+//				i = nil
+//				t = nil
+				
+				return &ret
+				
+			} else {
+				
+				return get_leaf(i)
+			}
+			
+			
+		}
+		
+	}
+	
+	// 여기 다시 볼것
+	
+	return nil
+
+//	ret.k = "이거 뭐야"
+//	ret.v = "fldskjflsdjfsdklfsd"
+		
+//	return &ret
+
+}
+
+
+func del(k string, d int, tree *hm_item) {
+
+
+
+	c := (crc32.Checksum([]byte(k), root_hq) + (*tree).hash_uniq) % 3
+	
+	if tree == nil {
+	
+		println("못찾음d1")
+		return
+	}
+	
+	if (*tree).next_item[c] == nil {
+		println("못찾음d2")
+		return	
+	
+	}	
+	
+	if (*tree).next_item[c].k == k {
+	
+		println(k, "삭제")
+		
+		d := get_leaf((*tree).next_item[c])
+		
+		if d != nil {
+			println("리프 = ", d.k, d.v)
+//			(*tree).k = d.k
+//			(*tree).v = d.v			
+			(*tree).next_item[c].k = d.k
+			(*tree).next_item[c].v = d.v
+			return 
+		}
+		
+		println("리프 없음")
+		(*tree).child_count--
+		(*tree).next_item[c] = nil
+//		tree = nil
+		return
+			
+			
+/*		
+		for _, i := range (*tree).next_item[c].next_item {
+		
+			if i != nil {
+				println("-----------", i.k, i.v, c, (crc32.Checksum([]byte(i.k), root_hq) + (*tree).hash_uniq) % 3)
+				(*tree).next_item[c].k = i.k
+				(*tree).next_item[c].v = i.v
+				i = nil
+//				(*tree).next_item[c].next_item[f] = nil
+				return
+			}
+		}
+		
+		(*tree).next_item[c] = nil
+		return
+*/
+	}
+	
+	del(k, d + 1, (*tree).next_item[c])
+}
+
+func print_all(tree *hm_item, d int) {
+
+	c := 0
+	
+//	println("dddd---")
+
+	for i := 0; i < 3; i++ {
+//		println("i===", i, "d===", d)
+		if (*tree).next_item[i] != nil {
+			println("현재 깊이", d, (*tree).next_item[i].k, (*tree).next_item[i].v)
+			print_all((*tree).next_item[i], d + 1)
+		} else {
+			c++
+		}
+	}
+	
+	println("c===", c)
+	if c == 3 {
+		println("더 이상 업음")
+		return
+	} 
+	
+}
+
+
+
+
+func main() {
+
+	println("hell!")
+	
+	root_hq = crc32.MakeTable(0x12345678)
+	
+	add("11", "22", 0, &root_items)
+	add("111", "221", 0, &root_items)
+	add("1111", "222", 0, &root_items)
+	add("11211", "223", 0, &root_items)
+	
+	println("----1111----")
+	get("1111", 0, &root_items)
+	
+	
+	del("1111", 0, &root_items)
+	println("----2222----")
+	get("1111", 0, &root_items)
+	
+	println("----33")
+	print_all(&root_items, 0)
+	del("11211", 0, &root_items)
+	println("----44")
+	print_all(&root_items, 0)
+	
+	
+	os.Exit(0)
+	
+	
+	for i := 0; i < 100; i++ {
+	
+		add(fmt.Sprintf("우에우에%d", i), fmt.Sprintf("값은%d", i * 2), 0, &root_items)
+	
+	}
+	
+	println("--------------1")
+	
+	
+//	jj := get_leaf(&root_items)
+	
+//	println("----", get_leaf(&root_items).k)
+	
+//	del("우에우에1", 0, &root_items)
+	
+//	for i := 0; i < 100; i++ {
+
+//		get(fmt.Sprintf("우에우에%d", i), 0, &root_items)
+//	}
+
+//	del("우에우에0", 0, &root_items)	
+//	del("우에우에5", 0, &root_items)	
+//	del("우에우에93", 0, &root_items)	
+
+//	del("우에우에0", 0, &root_items)	
+//	del("우에우에1", 0, &root_items)	
+//	del("우에우에3", 0, &root_items)	
+//	del("우에우에2", 0, &root_items)		
+//	del("우에우에99", 0, &root_items)		
+//	del("우에우에98", 0, &root_items)	
+//	del("우에우에97", 0, &root_items)
+//	del("우에우에96", 0, &root_items)
+	println("------일부 삭제------")
+	
+	for i := 0; i < 100; i += 2 {
+
+		del(fmt.Sprintf("우에우에%d", i), 0, &root_items)
+//		get(fmt.Sprintf("우에우에%d", i), 0, &root_items)
+	}	
+	
+	println("--결과--")
+	
+	for i := 0; i < 100; i++ {
+
+		get(fmt.Sprintf("우에우에%d", i), 0, &root_items)
+	}
+}
+
